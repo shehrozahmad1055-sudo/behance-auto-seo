@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Behance SEO Panel",
+  "version": "1.0.0",
+  "description": "Side panel that researches real search keywords and auto-fills SEO titles, tags and descriptions on your Behance project editor.",
+  "permissions": ["sidePanel", "storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": [
+    "https://*.behance.net/*",
+    "https://generativelanguage.googleapis.com/*",
+    "https://suggestqueries.google.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "action": { "default_title": "Behance SEO Panel" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.behance.net/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}

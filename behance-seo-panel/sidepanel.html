@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Behance SEO Panel</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="logo">Bē</div>
+    <div>
+      <h1>SEO Panel</h1>
+      <p>Reads your whole project → title, tags &amp; description</p>
+    </div>
+    <button id="btnSettings" class="icon-btn" title="Settings">⚙️</button>
+  </header>
+
+  <section id="settings" class="card hidden">
+    <h2>Settings</h2>
+    <label>Gemini API key
+      <input id="apiKey" type="password" placeholder="AIza..." autocomplete="off" />
+    </label>
+    <label>Model
+      <input id="model" type="text" placeholder="gemini-2.5-flash" />
+    </label>
+    <div class="grid3">
+      <label>Title min
+        <input id="titleMin" type="number" min="10" max="100" />
+      </label>
+      <label>Title max
+        <input id="titleMax" type="number" min="20" max="120" />
+      </label>
+      <label>Tags count
+        <input id="tagCount" type="number" min="3" max="10" />
+      </label>
+    </div>
+    <div class="grid3">
+      <label>Desc min
+        <input id="descMin" type="number" min="0" max="1000" />
+      </label>
+      <label>Desc max
+        <input id="descMax" type="number" min="100" max="3000" />
+      </label>
+      <label>Tag max chars
+        <input id="tagMax" type="number" min="5" max="25" />
+      </label>
+    </div>
+    <div class="grid3">
+      <label>Max images
+        <input id="maxImages" type="number" min="10" max="600" />
+      </label>
+      <label>Per batch
+        <input id="batchSize" type="number" min="10" max="80" />
+      </label>
+      <label>Image px
+        <input id="imgEdge" type="number" min="256" max="1024" />
+      </label>
+    </div>
+    <div class="grid3">
+      <label>Fields max
+        <input id="fieldCount" type="number" min="1" max="3" />
+      </label>
+      <label>Img tags min
+        <input id="imgTagMin" type="number" min="1" max="7" />
+      </label>
+      <label>Img tags max
+        <input id="imgTagMax" type="number" min="1" max="7" />
+      </label>
+    </div>
+    <label>Output language
+      <input id="lang" type="text" placeholder="English" />
+    </label>
+    <button id="btnSave" class="btn primary">Save settings</button>
+    <p class="hint">Tags: max 10, each max 25 characters, no &lt; or &gt; (confirmed by Behance itself). Title/description limits are not officially published, so these are safe defaults; the panel also reads the real field limits from the open editor and the error banner Behance shows, and adapts.</p>
+  </section>
+
+  <section class="card">
+    <h2>1 · Your project</h2>
+    <p class="hint" style="margin-top:0">Open the project in the Behance editor (or the published project page) in this tab. The panel reads <b>every image</b> of the project by itself, nothing to upload.</p>
+    <label>Project / brand name (optional)
+      <input id="brand" type="text" placeholder="e.g. NOIRÉ" />
+    </label>
+    <label>Quick brief (optional)
+      <textarea id="brief" rows="2" placeholder="e.g. Energy drink label design for a fitness brand"></textarea>
+    </label>
+    <label class="check"><input id="replaceOld" type="checkbox" checked /> <span>Editing an existing project: replace its old tags and creative fields with the new ones</span></label>
+    <button id="btnGen" class="btn primary big">✨ Analyze project &amp; generate SEO</button>
+  </section>
+
+  <section id="progress" class="card hidden">
+    <ol class="steps">
+      <li data-step="1">Collecting all project images</li>
+      <li data-step="2">Analyzing every image</li>
+      <li data-step="3">Collecting real search keywords</li>
+      <li data-step="4">Writing short, SEO-safe copy</li>
+    </ol>
+    <div id="status" class="hint"></div>
+  </section>
+
+  <section id="result" class="card hidden">
+    <h2>2 · Result</h2>
+
+    <div class="field-head"><span>Title</span><span id="titleCount" class="count"></span></div>
+    <div id="titleOptions" class="chips"></div>
+    <input id="titleInput" type="text" />
+
+    <div class="field-head"><span>Tags</span><span id="tagsCount" class="count"></span></div>
+    <div id="tagChips" class="chips"></div>
+    <div class="row">
+      <input id="tagAdd" type="text" placeholder="Add a tag and press Enter" />
+    </div>
+
+    <div class="field-head"><span>Creative fields (category)</span><span id="fieldsCount" class="count"></span></div>
+    <div id="fieldChips" class="chips"></div>
+    <div class="row">
+      <input id="fieldAdd" type="text" placeholder="Add a field (e.g. Illustration) and press Enter" />
+    </div>
+
+    <div class="field-head"><span>Description</span><span id="descCount" class="count"></span></div>
+    <textarea id="descInput" rows="5"></textarea>
+
+    <div class="row wrap">
+      <button id="btnFill" class="btn primary big">🚀 Fill on Behance</button>
+      <button id="btnPublish" class="btn danger">Click Publish</button>
+    </div>
+    <div class="row wrap">
+      <button class="btn ghost small" data-copy="title">Copy title</button>
+      <button class="btn ghost small" data-copy="tags">Copy tags</button>
+      <button class="btn ghost small" data-copy="desc">Copy description</button>
+      <button id="btnRegen" class="btn ghost small">↻ Rewrite (same analysis)</button>
+    </div>
+    <div id="fillReport" class="hint"></div>
+
+    <details class="research">
+      <summary>🧠 What the AI saw in your project</summary>
+      <p id="analysisText" class="hint"></p>
+    </details>
+    <details class="research">
+      <summary>🔎 Keywords the AI picked from (real search data)</summary>
+      <div id="research" class="chips small"></div>
+      <p class="hint"><span class="dot g"></span> Google suggestions &nbsp; <span class="dot b"></span> Behance results</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>3 · Image tags (each image separately)</h2>
+    <p class="hint" style="margin-top:0">Close the project Settings drawer first. The panel clicks every image in the editor, reads Behance's own suggested one-word tags in the side panel, and adds the 3-7 most relevant ones per image (limits in Settings). Project tags/title/description are separate and go in via the Settings/publish window.</p>
+    <div class="row wrap">
+      <button id="btnImgTags" class="btn primary">🏷️ Tag all images</button>
+      <button id="btnImgStop" class="btn danger">⏹ Stop</button>
+    </div>
+    <div id="imgTagStatus" class="hint" style="white-space: pre-line"></div>
+    <button id="btnImgDebug" class="btn ghost small" style="margin-top:8px">🐞 Copy image tag panel HTML (for debugging)</button>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
